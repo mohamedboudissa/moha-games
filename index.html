@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MOHA GAMES 🎮</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#080b16;color:white;
+ font-family:Arial;text-align:center
+}
+header{
+ padding:25px;background:#111827;
+ border-bottom:2px solid #00c6ff
+}
+header h1{margin:0}
+#home{
+ max-width:1000px;margin:25px auto;padding:15px;
+ display:grid;grid-template-columns:repeat(4,1fr);gap:15px
+}
+.card,.screen{
+ background:#111827;border:2px solid #00c6ff;
+ border-radius:18px;padding:20px
+}
+.card{
+ min-height:230px;
+ display:flex;flex-direction:column;
+ justify-content:space-between;align-items:center
+}
+.icon{font-size:50px}
+button{
+ background:#00c6ff;color:white;border:0;
+ border-radius:10px;padding:12px 20px;
+ font-size:16px;cursor:pointer
+}
+.screen{
+ display:none;max-width:600px;
+ margin:25px auto
+}
+.back{background:#374151}
+canvas{
+ background:#080b16;border:3px solid #00c6ff;
+ max-width:100%
+}
+.controls{margin:15px}
+.controls button{
+ width:55px;height:55px;
+ padding:5px;font-size:22px
+}
+#xo,#memory{
+ display:grid;
+ grid-template-columns:repeat(3,70px);
+ gap:5px;justify-content:center
+}
+#xo button,#memory button{
+ width:70px;height:70px;
+ padding:0;font-size:28px
+}
+#board2048{
+ display:grid;
+ grid-template-columns:repeat(4,65px);
+ gap:5px;justify-content:center;
+ background:#374151;padding:8px;
+ border-radius:10px
+}
+.tile{
+ width:65px;height:65px;
+ background:#1f2937;
+ display:flex;align-items:center;
+ justify-content:center;
+ font-size:22px;font-weight:bold;
+ border-radius:7px
+}
+#target{
+ width:65px;height:65px;
+ border-radius:50%;
+ padding:0;
+ margin:30px
+}
+#jumpArea{
+ height:200px;
+ border:2px solid #374151;
+ border-radius:15px;
+ position:relative;
+ margin:20px;
+}
+#player{
+ width:40px;height:40px;
+ background:#00c6ff;
+ border-radius:8px;
+ position:absolute;
+ bottom:10px;left:30px
+}
+#dice{font-size:90px;margin:20px}
+#reactionButton{min-width:180px}
+@media(max-width:800px){
+ #home{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:450px){
+ #home{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🎮 MOHA GAMES</h1>
+<p>عالم الألعاب الخاص بك</p>
+</header>
+
+<!-- الصفحة الرئيسية -->
+
+<div id="home">
+
+<div class="card">
+<div class="icon">🐍</div>
+<h2>الدودة</h2>
+<p>كبر الدودة وحطم رقمك!</p>
+<button onclick="openGame('snakeGame')">العب 🎮</button>
+</div>
+
+<div class="card">
+<div class="icon">❌⭕</div>
+<h2>XO</h2>
+<p>لعبة إكس أو</p>
+<button onclick="openGame('xoGame')">العب 🎮</button>
+</div>
+
+<div class="card">
+<div class="icon">🧠</div>
+<h2>الذاكرة</h2>
+<p>اعثر على الأزواج</p>
+<button onclick="openGame('memoryGame')">العب 🎮</button>
+</div>
+
+<div class="card">
+<div class="icon">🔢</div>
+<h2>2048</h2>
+<p>وصل إلى 2048</p>
+<button onclick="openGame('game2048')">العب 🎮</button>
+</div>
+
+<div class="card">
+<div class="icon">🎯</div>
+<h2>الهدف</h2>
+<p>اضغط على الهدف</p>
+<button onclick="openGame('targetGame')">العب 🎮</button>
+</div>
+
+<div class="card">
+<div class="icon">🦘</div>
+<h2>القفز</h2>
+<p>اقفز لأعلى</p>
+<button onclick="openGame('jumpGame')">العب 🎮</button>
+</div>
+
+<div class="card">
+<div class="icon">⚡</div>
+<h2>اختبار السرعة</h2>
+<p>اختبر سرعة ردك</p>
+<button onclick="openGame('reactionGame')">العب 🎮</button>
+</div>
+
+<div class="card">
+<div class="icon">🎲</div>
+<h2>النرد</h2>
+<p>ارمِ النرد</p>
+<button onclick="openGame('diceGame')">العب 🎮</button>
+</div>
+
+</div>
+
+
+<!-- الدودة -->
+
+<div id="snakeGame" class="screen">
+
+<h2>🐍 لعبة الدودة</h2>
+
+<h3>النقاط: <span id="snakeScore">0</span></h3>
+
+<canvas id="snakeCanvas" width="400" height="400"></canvas>
+
+<div class="controls">
+<button onclick="changeDirection('up')">⬆️</button>
+<br>
+<button onclick="changeDirection('left')">⬅️</button>
+<button onclick="changeDirection('down')">⬇️</button>
+<button onclick="changeDirection('right')">➡️</button>
+</div>
+
+<p id="snakeMessage"></p>
+
+<button onclick="startSnake()">🔄 إعادة اللعب</button>
+<br><br>
+<button class="back" onclick="goHome()">🏠 الصفحة الرئيسية</button>
+
+</div>
+
+
+<!-- XO -->
+
+<div id="xoGame" class="screen">
+
+<h2>❌⭕ لعبة XO</h2>
+
+<h3 id="xoMessage">دورك ❌</h3>
+
+<div id="xo"></div>
+
+<br>
+
+<button onclick="startXO()">🔄 إعادة</button>
+<br><br>
+<button class="back" onclick="goHome()">🏠 الصفحة الرئيسية</button>
+
+</div>
+
+
+<!-- الذاكرة -->
+
+<div id="memoryGame" class="screen">
+
+<h2>🧠 لعبة الذاكرة</h2>
+
+<p id="memoryMessage">ابحث عن الأزواج</p>
+
+<div id="memory"></div>
+
+<br>
+
+<button onclick="startMemory()">🔄 إعادة</button>
+<br><br>
+<button class="back" onclick="goHome()">🏠 الصفحة الرئيسية</button>
+
+</div>
+
+
+<!-- 2048 -->
+
+<div id="game2048" class="screen">
+
+<h2>🔢 2048</h2>
+
+<h3>النقاط: <span id="score2048">0</span></h3>
+
+<div id="board2048"></div>
+
+<div class="controls">
+<button onclick="move2048('up')">⬆️</button>
+<br>
+<button onclick="move2048('left')">⬅️</button>
+<button onclick="move2048('down')">⬇️</button>
+<button onclick="move2048('right')">➡️</button>
+</div>
+
+<button onclick="start2048()">🔄 إعادة</button>
+<br><br>
+<button class="back" onclick="goHome()">🏠 الصفحة الرئيسية</button>
+
+</div>
+
+
+<!-- الهدف -->
+
+<div id="targetGame" class="screen">
+
+<h2>🎯 اصطد الهدف</h2>
+
+<h3>النقاط: <span id="targetScore">0</span></h3>
+
+<button id="target" onclick="hitTarget()">🎯</button>
+
+<br>
+
+<button onclick="startTarget()">🔄 إعادة</button>
+<br><br>
+<button class="back" onclick="goHome()">🏠 الصفحة الرئيسية</button>
+
+</div>
+
+
+<!-- القفز -->
+
+<div id="jumpGame" class="screen">
+
+<h2>🦘 لعبة القفز</h2>
+
+<h3 id="jumpScore">النقاط: 0</h3>
+
+<div id="jumpArea">
+<div id="player"></div>
+</div>
+
+<button onclick="jump()">🦘 اقفز</button>
+
+<br><br>
+
+<button class="back" onclick="goHome()">🏠 الصفحة الرئيسية</button>
+
+</div>
+
+
+<!-- السرعة -->
+
+<div id="reactionGame" class="screen">
+
+<h2>⚡ اختبار السرعة</h2>
+
+<p id="reactionText">اضغط ابدأ</p>
+
+<button onclick="startReaction()">▶️ ابدأ</button>
+
+<br><br>
+
+<button id="reactionButton" onclick="reactionClick()">
+انتظر...
+</button>
+
+<br><br>
+
+<button class="back" onclick="goHome()">🏠 الصفحة الرئيسية</button>
+
+</div>
+
+
+<!-- النرد -->
+
+<div id="diceGame" class="screen">
+
+<h2>🎲 النرد</h2>
+
+<div id="dice">🎲</div>
+
+<button onclick="rollDice()">🎲 ارمي النرد</button>
+
+<br><br>
+
+<button class="back" onclick="goHome()">🏠 الصفحة الرئيسية</button>
+
+</div>
+
+
+<script>
+
+/* التنقل */
+
+const screens=document.querySelectorAll(".screen");
+
+function openGame(id){
+
+ document.getElementById("home").style.display="none";
+
+ screens.forEach(s=>s.style.display="none");
+
+ document.getElementById(id).style.display="block";
+
+ if(id==="snakeGame") startSnake();
+ if(id==="xoGame") startXO();
+ if(id==="memoryGame") startMemory();
+ if(id==="game2048") start2048();
+
+ window.scrollTo(0,0);
+}
+
+function goHome(){
+
+ screens.forEach(s=>s.style.display="none");
+
+ document.getElementById("home").style.display="grid";
+
+ clearInterval(snakeTimer);
+
+ window.scrollTo(0,0);
+}
+
+
+/* ================= الدودة ================= */
+
+const canvas=document.getElementById("snakeCanvas");
+const ctx=canvas.getContext("2d");
+
+let snake;
+let food;
+let direction;
+let nextDirection;
+let score;
+let snakeTimer;
+let running=false;
+
+function startSnake(){
+
+ clearInterval(snakeTimer);
+
+ snake=[
+  {x:200,y:200},
+  {x:180,y:200},
+  {x:160,y:200}
+ ];
+
+ food={x:100,y:100};
+
+ direction="right";
+ nextDirection="right";
+
+ score=0;
+ running=true;
+
+ document.getElementById("snakeScore").textContent=0;
+ document.getElementById("snakeMessage").textContent="";
+
+ snakeTimer=setInterval(gameSnake,120);
+
+ drawSnake();
+}
+
+function changeDirection(d){
+
+ if(d==="up"&&direction!=="down")
+  nextDirection="up";
+
+ if(d==="down"&&direction!=="up")
+  nextDirection="down";
+
+ if(d==="left"&&direction!=="right")
+  nextDirection="left";
+
+ if(d==="right"&&direction!=="left")
+  nextDirection="right";
+}
+
+document.addEventListener("keydown",e=>{
+
+ if(e.key==="ArrowUp")changeDirection("up");
+ if(e.key==="ArrowDown")changeDirection("down");
+ if(e.key==="ArrowLeft")changeDirection("left");
+ if(e.key==="ArrowRight")changeDirection("right");
+
+});
+
+function gameSnake(){
+
+ if(!running)return;
+
+ direction=nextDirection;
+
+ let head={...snake[0]};
+
+ if(direction==="right")head.x+=20;
+ if(direction==="left")head.x-=20;
+ if(direction==="up")head.y-=20;
+ if(direction==="down")head.y+=20;
+
+ if(
+  head.x<0||
+  head.x>=400||
+  head.y<0||
+  head.y>=400
+ ){
+
+  endSnake();
+  return;
+ }
+
+ for(let p of snake){
+
+  if(head.x===p.x&&head.y===p.y){
+
+   endSnake();
+   return;
+  }
+ }
+
+ snake.unshift(head);
+
+ if(head.x===food.x&&head.y===food.y){
+
+  score++;
+
+  document.getElementById("snakeScore").textContent=score;
+
+  newFood();
+
+ }else{
+
+  snake.pop();
+
+ }
+
+ drawSnake();
+}
+
+function newFood(){
+
+ do{
+
+  food.x=Math.floor(Math.random()*20)*20;
+  food.y=Math.floor(Math.random()*20)*20;
+
+ }while(snake.some(p=>p.x===food.x&&p.y===food.y));
+
+}
+
+function drawSnake(){
+
+ ctx.fillStyle="#111827";
+ ctx.fillRect(0,0,400,400);
+
+ ctx.fillStyle="#00c6ff";
+
+ snake.forEach((p,i)=>{
+
+  ctx.fillStyle=i===0?"white":"#00c6ff";
+
+  ctx.fillRect(p.x,p.y,18,18);
+
+ });
+
+ ctx.fillStyle="red";
+ ctx.fillRect(food.x,food.y,18,18);
+}
+
+function endSnake(){
+
+ running=false;
+ clearInterval(snakeTimer);
+
+ document.getElementById("snakeMessage").textContent=
+ "💀 انتهت اللعبة! اضغط إعادة اللعب.";
+}
+
+
+/* ================= XO ================= */
+
+let xoBoard;
+let xoTurn;
+
+function startXO(){
+
+ xoBoard=Array(9).fill("");
+ xoTurn="X";
+
+ document.getElementById("xoMessage").textContent="دورك ❌";
+
+ drawXO();
+}
+
+function drawXO(){
+
+ const board=document.getElementById("xo");
+
+ board.innerHTML="";
+
+ xoBoard.forEach((v,i)=>{
+
+  let b=document.createElement("button");
+
+  b.textContent=v;
+
+  b.onclick=()=>playXO(i);
+
+  board.appendChild(b);
+
+ });
+}
+
+function playXO(i){
+
+ if(xoBoard[i])return;
+
+ xoBoard[i]=xoTurn;
+
+ drawXO();
+
+ if(checkWinner(xoTurn)){
+
+  document.getElementById("xoMessage").textContent=
+   "🎉 اللاعب "+xoTurn+" فاز!";
+
+  return;
+ }
+
+ if(!xoBoard.includes("")){
+
+  document.getElementById("xoMessage").textContent="🤝 تعادل!";
+
+  return;
+ }
+
+ xoTurn=xoTurn==="X"?"O":"X";
+
+ document.getElementById("xoMessage").textContent=
+  "دور "+xoTurn;
+}
+
+function checkWinner(p){
+
+ const wins=[
+  [0,1,2],[3,4,5],[6,7,8],
+  [0,3,6],[1,4,7],[2,5,8],
+  [0,4,8],[2,4,6]
+ ];
+
+ return wins.some(w=>w.every(i=>xoBoard[i]===p));
+}
+
+
+/* ================= الذاكرة ================= */
+
+let firstCard=null;
+let lock=false;
+
+function startMemory(){
+
+ const symbols=["🍎","🍎","🍌","🍌","🍇","🍇","🍉","🍉"];
+
+ symbols.sort(()=>Math.random()-.5);
+
+ const board=document.getElementById("memory");
+
+ board.innerHTML="";
+
+ firstCard=null;
+ lock=false;
+
+ document.getElementById("memoryMessage").textContent=
+ "ابحث عن الأزواج";
+
+ symbols.forEach(symbol=>{
+
+  let b=document.createElement("button");
+
+  b.textContent="❓";
+
+  b.onclick=()=>flipCard(b,symbol);
+
+  board.appendChild(b);
+ });
+}
+
+function flipCard(button,symbol){
+
+ if(lock||button.textContent!=="❓")return;
+
+ button.textContent=symbol;
+
+ if(!firstCard){
+
+  firstCard={button,symbol};
+  return;
+ }
+
+ if(firstCard.symbol===symbol){
+
+  firstCard=null;
+
+  if(
+   [...document.querySelectorAll("#memory button")]
+   .every(b=>b.textContent!=="❓")
+  ){
+
+   document.getElementById("memoryMessage").textContent=
+   "🎉 فزت!";
+  }
+
+ }else{
+
+  lock=true;
+
+  let first=firstCard;
+
+  setTimeout(()=>{
+
+   first.button.textContent="❓";
+   button.textContent="❓";
+
+   firstCard=null;
+   lock=false;
+
+  },700);
+ }
+}
+
+
+/* ================= 2048 ================= */
+
+let board2048;
+let score2048;
+
+function start2048(){
+
+ board2048=[
+  [0,0,0,0],
+  [0,0,0,0],
+  [0,0,0,0],
+  [0,0,0,0]
+ ];
+
+ score2048=0;
+
+ addTile();
+ addTile();
+
+ draw2048();
+}
+
+function addTile(){
+
+ let empty=[];
+
+ for(let r=0;r<4;r++)
+  for(let c=0;c<4;c++)
+   if(board2048[r][c]===0)
+    empty.push([r,c]);
+
+ if(!empty.length)return;
+
+ let p=empty[Math.floor(Math.random()*empty.length)];
+
+ board2048[p[0]][p[1]]=2;
+}
+
+function draw2048(){
+
+ const board=document.getElementById("board2048");
+
+ board.innerHTML="";
+
+ board2048.flat().forEach(v=>{
+
+  let d=document.createElement("div");
+
+  d.className="tile";
+  d.textContent=v||"";
+
+  board.appendChild(d);
+ });
+
+ document.getElementById("score2048").textContent=score2048;
+}
+
+function merge(row){
+
+ row=row.filter(x=>x);
+
+ for(let i=0;i<row.length-1;i++){
+
+  if(row[i]===row[i+1]){
+
+   row[i]*=2;
+
+   score2048+=row[i];
+
+   row.splice(i+1,1);
+  }
+ }
+
+ while(row.length<4)row.push(0);
+
+ return row;
+}
+
+function move2048(d){
+
+ if(d==="left"){
+
+  for(let r=0;r<4;r++)
+   board2048[r]=merge(board2048[r]);
+
+ }
+
+ if(d==="right"){
+
+  for(let r=0;r<4;r++)
+   board2048[r]=merge(board2048[r].reverse()).reverse();
+
+ }
+
+ if(d==="up"){
+
+  for(let c=0;c<4;c++){
+
+   let col=board2048.map(r=>r[c]);
+
+   col=merge(col);
+
+   for(let r=0;r<4;r++)
+    board2048[r][c]=col[r];
+  }
+ }
+
+ if(d==="down"){
+
+  for(let c=0;c<4;c++){
+
+   let col=board2048.map(r=>r[c]).reverse();
+
+   col=merge(col).reverse();
+
+   for(let r=0;r<4;r++)
+    board2048[r][c]=col[r];
+  }
+ }
+
+ addTile();
+ draw2048();
+}
+
+
+/* ================= الهدف ================= */
+
+let targetScore=0;
+
+function startTarget(){
+
+ targetScore=0;
+
+ document.getElementById("targetScore").textContent=0;
+}
+
+function hitTarget(){
+
+ targetScore++;
+
+ document.getElementById("targetScore").textContent=
+ targetScore;
+}
+
+
+/* ================= القفز ================= */
+
+let jumpScore=0;
+
+function jump(){
+
+ jumpScore++;
+
+ document.getElementById("jumpScore").textContent=
+ "النقاط: "+jumpScore;
+
+ const player=document.getElementById("player");
+
+ player.style.bottom="140px";
+
+ setTimeout(()=>{
+
+  player.style.bottom="10px";
+
+ },400);
+}
+
+
+/* ================= السرعة ================= */
+
+let ready=false;
+let reactionStart=0;
+let reactionTimer;
+
+function startReaction(){
+
+ ready=false;
+
+ const button=document.getElementById("reactionButton");
+
+ const text=document.getElementById("reactionText");
+
+ button.textContent="انتظر...";
+ button.style.background="#374151";
+
+ text.textContent="انتظر اللون الأخضر...";
+
+ clearTimeout(reactionTimer);
+
+ reactionTimer=setTimeout(()=>{
+
+  ready=true;
+
+  reactionStart=Date.now();
+
+  button.textContent="اضغط الآن!";
+  button.style.background="green";
+
+ },Math.random()*2500+1000);
+}
+
+function reactionClick(){
+
+ if(!ready)return;
+
+ let time=Date.now()-reactionStart;
+
+ document.getElementById("reactionText").textContent=
+ "⚡ وقتك: "+time+" ms";
+
+ ready=false;
+}
+
+
+/* ================= النرد ================= */
+
+function rollDice(){
+
+ const faces=["⚀","⚁","⚂","⚃","⚄","⚅"];
+
+ document.getElementById("dice").textContent=
+ faces[Math.floor(Math.random()*6)];
+}
+
+</script>
+
+</body>
+</html>
